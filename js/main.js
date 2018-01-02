@@ -63,6 +63,7 @@ PlayState = {};
 
 PlayState.init = function () {
     this.game.renderer.renderSession.roundPixels = true;
+    this.coinPickupCount = 0;
     this.keys = this.game.input.keyboard.addKeys({
         left: Phaser.KeyCode.LEFT,
         right: Phaser.KeyCode.RIGHT,
@@ -88,6 +89,8 @@ PlayState.preload = function () {
     this.game.load.image('grass:1x1', 'images/grass_1x1.png');
     this.game.load.image('hero', 'images/hero_stopped.png');
     this.game.load.image('invisible-wall', 'images/invisible_wall.png');
+    this.game.load.image('icon:coin', 'images/coin_icon.png');
+    this.game.load.image('font:numbers', 'images/numbers.png');
     this.game.load.audio('sfx:jump', 'audio/jump.wav');
     this.game.load.audio('sfx:coin', 'audio/coin.wav');
     this.game.load.audio('sfx:stomp', 'audio/stomp.wav');
@@ -103,14 +106,28 @@ PlayState.create = function () {
         coin: this.game.add.audio('sfx:coin'),
         stomp: this.game.add.audio('sfx:stomp')
     };
+    this._createHud();
+};
+
+PlayState._createHud = function () {
+    let coinIcon = this.game.make.image(0, 0, 'icon:coin');
+    const NUMBERS_STR = '0123456789X ';
+    this.coinsFont = this.game.add.retroFont('font:numbers', 20, 26, NUMBERS_STR, 6);
+
+    let coinScoreImg = this.game.make.image(coinIcon.x + coinIcon.width, coinIcon.height / 2, this.coinsFont);
+    coinScoreImg.anchor.set(0, 0.5);
+
+    this.hud = this.game.add.group();
+    this.hud.add(coinIcon);
+    this.hud.position.set(10, 10);
+
 };
 
 PlayState.update = function () {
     this._handleInput();
     this._handleColissions();
-}
-
-
+    this.coinsFont.text = `x${this.coinPickupCount}`;
+};
 
 PlayState._handleInput = function () {
     if(this.keys.left.isDown){
@@ -132,7 +149,6 @@ PlayState._handleColissions = function () {
 
 PlayState._onHeroVsEnemy = function (hero, enemy){
     if(hero.body.velocity.y > 0){
-        enemy.kill();
         hero.bounce();
         enemy.die();
         this.sfx.stomp.play();
@@ -140,10 +156,11 @@ PlayState._onHeroVsEnemy = function (hero, enemy){
         this.sfx.stomp.play();
         this.game.state.restart();
     }
-}
+};
 
 PlayState._onHeroVsCoin = function (hero, coin){
     this.sfx.coin.play();
+    this.coinPickupCount++;
     coin.kill();
 }
 
