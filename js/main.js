@@ -110,17 +110,18 @@ PlayState.create = function () {
 };
 
 PlayState._createHud = function () {
-    let coinIcon = this.game.make.image(0, 0, 'icon:coin');
     const NUMBERS_STR = '0123456789X ';
     this.coinsFont = this.game.add.retroFont('font:numbers', 20, 26, NUMBERS_STR, 6);
 
+    let coinIcon = this.game.make.image(0, 0, 'icon:coin');
     let coinScoreImg = this.game.make.image(coinIcon.x + coinIcon.width, coinIcon.height / 2, this.coinsFont);
+
     coinScoreImg.anchor.set(0, 0.5);
 
     this.hud = this.game.add.group();
     this.hud.add(coinIcon);
+    this.hud.add(coinScoreImg);
     this.hud.position.set(10, 10);
-
 };
 
 PlayState.update = function () {
